@@ -1,10 +1,22 @@
-import * as constants from './../constants';
+import * as constants from '../constants';
 
 export const registerUser = (data, onSuccess, onError) => ({
   type: constants.API,
   payload: {
     method: 'POST',
     url: '/api/users/register',
+    data,
+    success: (response) => setUserInfo(response),
+    postProcessSuccess: onSuccess,
+    postProcessError: onError,
+  },
+});
+
+export const loginUser = (data, onSuccess, onError) => ({
+  type: constants.API,
+  payload: {
+    method: 'POST',
+    url: '/api/users/login',
     data,
     success: (response) => setUserInfo(response),
     postProcessSuccess: onSuccess,

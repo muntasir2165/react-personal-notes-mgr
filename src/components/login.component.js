@@ -1,8 +1,21 @@
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
 
-const LoginForm = () => {
+import { loginUser } from './../redux/actions/authActionCreators';
+
+const LoginForm = ({ dispatchLoginAction }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const handleOnSubmit = (event) => {
+    event.preventDefault();
+    dispatchLoginAction(
+      email,
+      password,
+      () => console.log('Logged in successfully!'),
+      (message) => console.log(`Error: ${message}`)
+    );
+  };
 
   return (
     <React.Fragment>
@@ -10,7 +23,7 @@ const LoginForm = () => {
       <h4>Login here</h4>
       <br />
 
-      <form noValidate>
+      <form noValidate onSubmit={handleOnSubmit}>
         <div className='form-group'>
           <label htmlFor='email'>Email address</label>
           <input
@@ -49,4 +62,9 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+const mapDispatchToProps = (dispatch) => ({
+  dispatchLoginAction: (email, password, onSuccess, onError) =>
+    dispatch(loginUser({ email, password }, onSuccess, onError)),
+});
+
+export default connect(null, mapDispatchToProps)(LoginForm);

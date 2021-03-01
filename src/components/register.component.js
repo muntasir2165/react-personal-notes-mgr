@@ -1,18 +1,32 @@
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
 
-const RegisterForm = () => {
+import { registerUser } from '../redux/actions/authActionCreators';
+
+const RegisterForm = ({ dispatchRegisterAction }) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const handleOnSubmit = (event) => {
+    event.preventDefault();
+    dispatchRegisterAction(
+      firstName,
+      lastName,
+      email,
+      password,
+      () => console.log('Account created successfully!'),
+      (message) => console.log(`Error: ${message}`)
+    );
+  };
   return (
     <React.Fragment>
       <h2>New User ?</h2>
       <h4>Create an account</h4>
       <br />
 
-      <form noValidate>
+      <form noValidate onSubmit={handleOnSubmit}>
         <div className='form-group'>
           <label htmlFor='firstName'>First Name</label>
           <input
@@ -53,7 +67,6 @@ const RegisterForm = () => {
           />
         </div>
         <div className='form-group'>
-          {' '}
           <label htmlFor='password1'>Password</label>
           <input
             noValidate
@@ -68,7 +81,7 @@ const RegisterForm = () => {
         </div>
 
         <button type='submit' className='btn btn-primary mr-2'>
-          Login | <i className='fas fa-user-plus' />
+          Register | <i className='fas fa-user-plus' />
         </button>
         <button className='btn btn-outline-secondary'>
           Cancel | <i className='fas fa-times' />
@@ -78,4 +91,18 @@ const RegisterForm = () => {
   );
 };
 
-export default RegisterForm;
+const mapDispatchToProps = (dispatch) => ({
+  dispatchRegisterAction: (
+    firstName,
+    lastName,
+    email,
+    password,
+    onSuccess,
+    onError
+  ) =>
+    dispatch(
+      registerUser({ firstName, lastName, email, password }, onSuccess, onError)
+    ),
+});
+
+export default connect(null, mapDispatchToProps)(RegisterForm);
