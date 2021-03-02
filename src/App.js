@@ -9,8 +9,9 @@ import NotesPage from './pages/notespage.component';
 import EditNotePage from './pages/editnotepage.component';
 import Header from './components/header.component';
 import Spinner from './components/spinner/spinner.component';
+import { logoutUser } from './redux/actions/authActionCreators';
 
-const App = ({ user }) => {
+const App = ({ user, dispatchLogoutAction }) => {
   return (
     <React.Fragment>
       <ToastContainer
@@ -20,7 +21,11 @@ const App = ({ user }) => {
         transition={Slide}
       />
       <Spinner />
-      <Header />
+      <Header
+        isLoggedIn={user.isLoggedIn}
+        userName={user.fullName}
+        onLogout={dispatchLogoutAction}
+      />
       <div className='container my-5'>
         {!user.isLoggedIn ? (
           <Switch>
@@ -44,4 +49,8 @@ const mapStateToProps = (state) => ({
   user: state.user,
 });
 
-export default connect(mapStateToProps)(App);
+const mapDispatchToProps = (dispatch) => ({
+  dispatchLogoutAction: () => dispatch(logoutUser()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
