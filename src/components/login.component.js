@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
+import { toast } from 'react-toastify';
 
 import { loginUser } from './../redux/actions/authActionCreators';
 
@@ -12,8 +13,8 @@ const LoginForm = ({ dispatchLoginAction }) => {
     dispatchLoginAction(
       email,
       password,
-      () => console.log('Logged in successfully!'),
-      (message) => console.log(`Error: ${message}`)
+      () => toast.success('Logged In Successfully!'),
+      (message) => toast.error(`Error: ${message}`)
     );
   };
 
