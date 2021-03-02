@@ -21,6 +21,27 @@ export const createNote = (data, onSuccess, onError) => ({
   },
 });
 
+export const getNoteById = (noteId, onSuccess) => ({
+  type: constants.API,
+  payload: {
+    method: 'GET',
+    url: `/api/notes/${noteId}`,
+    postProcessSuccess: onSuccess,
+  },
+});
+
+export const updateNoteById = (noteId, data, onSuccess, onError) => ({
+  type: constants.API,
+  payload: {
+    method: 'PUT',
+    url: `/api/notes/${noteId}`,
+    data,
+    success: (noteId, data) => updateNote(noteId, data),
+    postProcessSuccess: onSuccess,
+    postProcessError: onError,
+  },
+});
+
 const addNote = (note) => ({
   type: constants.ADD_NOTE,
   payload: note,
@@ -29,4 +50,12 @@ const addNote = (note) => ({
 const setAllNotes = (data) => ({
   type: constants.SET_ALL_NOTES,
   payload: data,
+});
+
+const updateNote = (noteId, data) => ({
+  type: constants.UPDATE_NOTE,
+  payload: {
+    noteId,
+    data,
+  },
 });

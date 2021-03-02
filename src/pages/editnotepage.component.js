@@ -1,26 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { toast } from 'react-toastify';
 
-import { createNote } from './../redux/actions/notesActionCreators';
+import {
+  createNote,
+  getNoteById,
+  updateNoteById,
+} from './../redux/actions/notesActionCreators';
 
-const EditNotePage = ({ history, dispatchCreateNoteAction }) => {
+const EditNotePage = ({
+  match,
+  history,
+  dispatchCreateNoteAction,
+  dispatchGetNoteByIdAction,
+  dispatchUpdateNoteAction,
+}) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
 
+  useEffect(() => {
+    const { noteId } = match.params;
+    if (noteId) {
+      dispatchGetNoteByIdAction(
+        noteId,
+        ({ title, content, description, category }) => {
+          setTitle(title);
+          setContent(content);
+          setDescription(description);
+          setCategory(category);
+        }
+      );
+    }
+  }, [dispatchGetNoteByIdAction, match.params]);
+
   const handleOnSubmit = (event) => {
     event.preventDefault();
+    const { noteId } = match.params;
     const data = { title, content, description, category };
-    dispatchCreateNoteAction(
-      data,
-      () => {
-        toast.success('Note Created Successfully!');
-        history.replace('/notes');
-      },
-      (message) => toast.error(`Error: ${message}`)
-    );
+    // if noteId is present, we are in edit mode for an existing note
+    // else, we are on the page filling out the contents for a new note
+    if (noteId) {
+      dispatchUpdateNoteAction(
+        noteId,
+        data,
+        () => {
+          toast.success('Note Updated Successfully!');
+          history.replace('/notes');
+        },
+        (message) => toast.error(`Error: ${message}`)
+      );
+    } else {
+      dispatchCreateNoteAction(
+        data,
+        () => {
+          toast.success('Note Created Successfully!');
+          history.replace('/notes');
+        },
+        (message) => toast.error(`Error: ${message}`)
+      );
+    }
   };
 
   return (
@@ -111,6 +151,10 @@ const EditNotePage = ({ history, dispatchCreateNoteAction }) => {
 const mapDispatchToProps = (dispatch) => ({
   dispatchCreateNoteAction: (data, onSuccess, onError) =>
     dispatch(createNote(data, onSuccess, onError)),
+  dispatchUpdateNoteAction: (noteId, data, onSuccess, onError) =>
+    dispatch(updateNoteById(noteId, data, onSuccess, onError)),
+  dispatchGetNoteByIdAction: (noteId, onSuccess) =>
+    dispatch(getNoteById(noteId, onSuccess)),
 });
 
 export default connect(null, mapDispatchToProps)(EditNotePage);
