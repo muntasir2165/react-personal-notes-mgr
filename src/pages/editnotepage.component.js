@@ -39,7 +39,7 @@ const EditNotePage = ({
     event.preventDefault();
     const { noteId } = match.params;
     const data = { title, content, description, category };
-    // if noteId is present, we are in edit mode for an existing note
+    // if noteId is present, we are in edit/update mode for an existing note
     // else, we are on the page filling out the contents for a new note
     if (noteId) {
       dispatchUpdateNoteAction(
