@@ -19,6 +19,12 @@ const EditNotePage = ({
   const [content, setContent] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
+  const [error, setError] = useState({
+    title: false,
+    content: false,
+    description: false,
+    category: false,
+  });
 
   useEffect(() => {
     const { noteId } = match.params;
@@ -37,30 +43,51 @@ const EditNotePage = ({
 
   const handleOnSubmit = (event) => {
     event.preventDefault();
-    const { noteId } = match.params;
-    const data = { title, content, description, category };
-    // if noteId is present, we are in edit/update mode for an existing note
-    // else, we are on the page filling out the contents for a new note
-    if (noteId) {
-      dispatchUpdateNoteAction(
-        noteId,
-        data,
-        () => {
-          toast.success('Note Updated Successfully!');
-          history.replace('/notes');
-        },
-        (message) => toast.error(`Error: ${message}`)
-      );
+    if (isFormInvalid()) {
+      updateErrorFlags();
     } else {
-      dispatchCreateNoteAction(
-        data,
-        () => {
-          toast.success('Note Created Successfully!');
-          history.replace('/notes');
-        },
-        (message) => toast.error(`Error: ${message}`)
-      );
+      const { noteId } = match.params;
+      const data = { title, content, description, category };
+      // if noteId is present, we are in edit/update mode for an existing note
+      // else, we are on the page filling out the contents for a new note
+      if (noteId) {
+        dispatchUpdateNoteAction(
+          noteId,
+          data,
+          () => {
+            toast.success('Note Updated Successfully!');
+            history.replace('/notes');
+          },
+          (message) => toast.error(`Error: ${message}`)
+        );
+      } else {
+        dispatchCreateNoteAction(
+          data,
+          () => {
+            toast.success('Note Created Successfully!');
+            history.replace('/notes');
+          },
+          (message) => toast.error(`Error: ${message}`)
+        );
+      }
     }
+  };
+
+  const isFormInvalid = () =>
+    !title.trim() || !content.trim() || !description.trim() || !category;
+
+  const updateErrorFlags = () => {
+    const errorObj = {
+      title: false,
+      content: false,
+      description: false,
+      category: false,
+    };
+    if (!title.trim()) errorObj.title = true;
+    if (!content.trim()) errorObj.content = true;
+    if (!description.trim()) errorObj.description = true;
+    if (!category) errorObj.category = true;
+    setError(errorObj);
   };
 
   return (
@@ -83,8 +110,9 @@ const EditNotePage = ({
                 name='title'
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className='form-control'
+                className={`form-control ${error.title ? 'is-invalid' : ''}`}
               />
+              <p className='invalid-feedback'>Required</p>
             </div>
             <div className='form-group'>
               <label htmlFor='content'>Content</label>
@@ -96,8 +124,9 @@ const EditNotePage = ({
                 name='content'
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className='form-control'
+                className={`form-control ${error.content ? 'is-invalid' : ''}`}
               />
+              <p className='invalid-feedback'>Required</p>
             </div>
             <div className='form-group'>
               <label htmlFor='description'>Description</label>
@@ -109,8 +138,11 @@ const EditNotePage = ({
                 name='description'
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className='form-control'
+                className={`form-control ${
+                  error.description ? 'is-invalid' : ''
+                }`}
               />
+              <p className='invalid-feedback'>Required</p>
             </div>
             <div className='form-group'>
               <label htmlFor='category'>Category</label>
@@ -118,7 +150,7 @@ const EditNotePage = ({
                 noValidate
                 id='category'
                 name='category'
-                className='form-control'
+                className={`form-control ${error.category ? 'is-invalid' : ''}`}
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
               >
@@ -127,6 +159,7 @@ const EditNotePage = ({
                 <option value='IDPROOF'>ID Proof</option>
                 <option value='PROFESSIONAL'>Professional</option>
               </select>
+              <p className='invalid-feedback'>Required</p>
             </div>
 
             <div className='mt-5'>

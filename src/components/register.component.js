@@ -9,18 +9,59 @@ const RegisterForm = ({ dispatchRegisterAction }) => {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState({
+    firstName: false,
+    lastName: false,
+    email: false,
+    password: false,
+  });
 
   const handleOnSubmit = (event) => {
     event.preventDefault();
-    dispatchRegisterAction(
-      firstName,
-      lastName,
-      email,
-      password,
-      () => toast.success('Account Created Successfully!'),
-      (message) => toast.error(`Error: ${message}`)
-    );
+    if (isFormInvalid()) {
+      updateErrorFlags();
+    } else {
+      dispatchRegisterAction(
+        firstName,
+        lastName,
+        email,
+        password,
+        () => toast.success('Account Created Successfully!'),
+        (message) => toast.error(`Error: ${message}`)
+      );
+    }
   };
+
+  const handleCancelForm = (event) => {
+    event.preventDefault();
+    setFirstName('');
+    setLastName('');
+    setEmail('');
+    setPassword('');
+    setError({
+      firstName: false,
+      lastName: false,
+      email: false,
+      password: false,
+    });
+  };
+
+  const isFormInvalid = () => !firstName || !lastName || !email || !password;
+
+  const updateErrorFlags = () => {
+    const errorObj = {
+      firstName: false,
+      lastName: false,
+      email: false,
+      password: false,
+    };
+    if (!firstName.trim()) errorObj.firstName = true;
+    if (!lastName.trim()) errorObj.lastName = true;
+    if (!email.trim()) errorObj.email = true;
+    if (!password.trim()) errorObj.password = true;
+    setError(errorObj);
+  };
+
   return (
     <React.Fragment>
       <h2>New User ?</h2>
@@ -38,8 +79,9 @@ const RegisterForm = ({ dispatchRegisterAction }) => {
             placeholder='First Name'
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className='form-control'
+            className={`form-control ${error.email ? 'is-invalid' : ''}`}
           />
+          <p className='invalid-feedback'>Required</p>
         </div>
         <div className='form-group'>
           <label htmlFor='lastName'>Last Name</label>
@@ -51,8 +93,9 @@ const RegisterForm = ({ dispatchRegisterAction }) => {
             placeholder='Last Name'
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            className='form-control'
+            className={`form-control ${error.email ? 'is-invalid' : ''}`}
           />
+          <p className='invalid-feedback'>Required</p>
         </div>
         <div className='form-group'>
           <label htmlFor='email1'>Email address</label>
@@ -64,8 +107,9 @@ const RegisterForm = ({ dispatchRegisterAction }) => {
             placeholder='Email'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className='form-control'
+            className={`form-control ${error.email ? 'is-invalid' : ''}`}
           />
+          <p className='invalid-feedback'>Required</p>
         </div>
         <div className='form-group'>
           <label htmlFor='password1'>Password</label>
@@ -77,14 +121,18 @@ const RegisterForm = ({ dispatchRegisterAction }) => {
             placeholder='password'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className='form-control'
+            className={`form-control ${error.email ? 'is-invalid' : ''}`}
           />
+          <p className='invalid-feedback'>Required</p>
         </div>
 
         <button type='submit' className='btn btn-primary mr-2'>
           Register | <i className='fas fa-user-plus' />
         </button>
-        <button className='btn btn-outline-secondary'>
+        <button
+          onClick={handleCancelForm}
+          className='btn btn-outline-secondary'
+        >
           Cancel | <i className='fas fa-times' />
         </button>
       </form>
